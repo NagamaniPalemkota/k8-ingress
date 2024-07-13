@@ -1,24 +1,22 @@
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
-  name: app-2deployment
+  name: app2
+  # these labels are deployment related labels
   labels:
-    app: app-2
-    component: nginx
-  #these labels belong to deployment set resource
+    app: app2
+    purpose: ingress
 spec:
-  replicas: 1 #specify no. of pods, as per our requirement
-  selector: #select the pods with these labels
+  selector:
     matchLabels:
-      component: nginx
-      app: app-2
-    #below mentioned code refers to pod definition
+      app: app2
+      purpose: ingress
+  # pod definition
   template:
     metadata:
       labels:
-        component: nginx
-        app: app-2
-        project: expense
+        app: app2
+        purpose: ingress
     spec:
       containers:
       - name: app2
@@ -26,13 +24,37 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: app2
 spec:
   selector:
-    component: nginx
-    app: app-2
+    app: app2
+    purpose: ingress
   ports:
-    - protocol: TCP
-      port: 80   #service port
-      targetPort: 80  #pod port
+  - protocol: TCP
+    port: 80 #service-port
+    targetPort: 80 #target-port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app2
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
+    #this annotation is useful to keep only 1 ALB under muvvaonline, does not create too many ALBs
+    alb.ingress.kubernetes.io/group.name: muvvaonline
+spec:
+  ingressClassName: alb
+  rules:
+  - host: "app2.muvva.online" # ALB Rule
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: app2 # ALB Target group
+            port:
+              number: 80
