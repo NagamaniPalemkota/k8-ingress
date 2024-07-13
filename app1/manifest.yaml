@@ -43,11 +43,11 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
-    alb.ingress.kubernetes.io/group.name: joindevops
+    alb.ingress.kubernetes.io/group.name: muvvaonline
 spec:
   ingressClassName: alb
   rules:
-  - host: "app1.daws78s.online" # ALB Rule
+  - host: "app1.muvva.online" # ALB Rule
     http:
       paths:
       - pathType: Prefix
