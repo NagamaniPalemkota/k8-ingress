@@ -27,7 +27,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata: 
-  name: nginx-service
+  name: app1
 spec:
   selector:
     component: nginx
@@ -36,3 +36,25 @@ spec:
     - protocol: TCP
       port: 80   #service port
       targetPort: 80  #pod port
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+annotations:
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+        alb.ingress.kubernetes.io/group.name: muvva.online
+        alb.ingress.kubernetes.io/tags: Env:Dev, Purpose:Testing  
+spec:
+  rules:
+    - host: "app1.muvva.online" #ALB rule
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: app1    #ALB target group
+            port:
+              number: 80
